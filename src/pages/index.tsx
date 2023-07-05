@@ -41,33 +41,33 @@ export default function Home() {
     "https://cryptopriceapi.azurewebsites.net/CryptoPrices";
   const cryptoPlayersUrl = "https://cryptopriceapi.azurewebsites.net/Players";
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     axios
-  //       .get<Crypto[]>(cryptoPricesUrl)
-  //       .then((response) => {
-  //         console.log(response.data);
-  //         setCurrentPrices(response.data);
-  //       })
-  //       .catch((error) => {
-  //         console.error(error);
-  //       });
-  //   }, 5000);
-
-  //   return () => clearInterval(interval);
-  // }, [setCurrentPrices]);
-
   useEffect(() => {
-    axios
-      .get<Player[]>(cryptoPlayersUrl)
-      .then((response) => {
-        console.log(response.data);
-        setPlayers(response.data);
-      })
-      .catch((error) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get<Crypto[]>(cryptoPricesUrl);
+
+        axios
+          .get<Player[]>(cryptoPlayersUrl)
+          .then((response) => {
+            console.log(response.data);
+            setPlayers(response.data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+
+        setCurrentPrices(response.data);
+      } catch (error) {
         console.error(error);
-      });
-  }, []);
+      }
+    };
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 5000);
+
+    return () => clearInterval(interval);
+  }, [setCurrentPrices]);
 
   const color =
     "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-800 via-sky-950 from-gray-800";
@@ -78,12 +78,13 @@ export default function Home() {
         <ChartComponent />
       </div>
 
-      <Login></Login>
-      {players?.map((a) => (
-        <div key={a.name}>
-          <PlayerSpawner name={a.name} wallet={a.wallet}></PlayerSpawner>
-        </div>
-      ))}
+      <Login />
+
+      <div className="absolute top-0 left-0 ">
+        {players?.map((a, index) => (
+          <PlayerSpawner key={index} name={a.Name} wallet={a.WalletAddress} />
+        ))}
+      </div>
 
       <div className="flex">
         <div className="absolute top-4 left-10 w-auto h-auto bg-blue-900 rounded-3xl p-3 bg-opacity-30 hover:bg-blue-800 cursor-pointer">

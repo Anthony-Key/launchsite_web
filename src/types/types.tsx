@@ -4,6 +4,6 @@ export interface Crypto {
 }
 
 export interface Player {
-  name: string;
-  wallet: string;
+  Name: string;
+  WalletAddress: string;
 }
